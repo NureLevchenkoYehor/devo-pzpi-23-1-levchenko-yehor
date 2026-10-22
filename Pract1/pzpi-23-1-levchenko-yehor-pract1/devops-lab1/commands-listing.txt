@@ -1,0 +1,45 @@
+git clone https://github.com/NureLevchenkoYehor/devops-lab1.git
+cd devops-lab1
+
+git add .
+git commit -m "Init"
+git push
+
+git checkout -b feature/input-validation
+git add .
+git commit -m "feat: add input validation for non-integer values"
+git push -u origin feature/input-validation
+
+git checkout main
+
+
+git add .
+git commit -m "feat: add configuration"
+
+git merge feature/config
+
+git checkout -b feature/config
+
+git add .
+git commit -m "feat: set dev environment"
+
+git checkout main
+
+git add .
+git commit -m "feat: set prod environment"
+
+git merge feature/config
+
+git add .
+git commit -m "fix: resolve merge conflict in config"
+
+git checkout -b feature/optimize-prime-check
+
+git add .
+git commit -m "perf: optimize prime check loop to square root of n"
+
+git push -u origin feature/optimize-prime-check
+
+git branch
+git log --graph --oneline
+git branch -r
