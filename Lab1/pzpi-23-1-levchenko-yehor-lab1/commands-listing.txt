@@ -1,0 +1,33 @@
+mkdir -p ~/devops_lab/{app,logs,config}
+ls ~/devops_lab
+cat << 'EOF' > ~/devops_lab/config/app.conf
+ENVIRONMENT=production
+PORT=8080
+LOG_LEVEL=debug
+MAX_CONNECTIONS=100
+EOF
+ls ~/devops_lab/config
+cat ~/devops_lab/config/app.conf
+grep -E 'debug|production' ~/devops_lab/config/app.conf
+cp ~/devops_lab/config/app.conf ~/devops_lab/app/app.conf.bak
+ln -s ~/devops_lab/logs/app.log ~/devops_lab/app.log
+ls -l ~/devops_lab/app.log
+
+sudo groupadd devops_team
+sudo useradd -m -s /bin/bash -g devops_team devuser
+ls /home/devuser
+sudo chown -R devuser:devops_team ~/devops_lab
+sudo chmod u=rwx,g=rx,o= ~/devops_lab
+# еквівалентний числовий запис: chmod 750 ~/devops_lab
+
+sudo -u devuser bash
+mkdir -p ~/devops_lab/{app,logs,config}
+while true; do date >> ~/devops_lab/logs/timestamp.log; sleep 5; done &
+pgrep -af '[t]imestamp.log'   # не дало потрібного результату
+pgrep -af '[s]leep'
+top -o %MEM
+jobs -l
+kill -15 %ID
+
+journalctl -n 20 -u ssh --no-pager
+find /etc -maxdepth 1 -name "*.conf" | wc -l
