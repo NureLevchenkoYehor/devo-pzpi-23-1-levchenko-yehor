@@ -1,0 +1,73 @@
+# Windows (CMD)
+wsl --version
+wsl --list --online
+wsl --install Debian
+wsl -l -v
+# Debian
+cat /etc/wsl.conf
+ps -p 1 -o comm=
+systemctl --version | head -1
+cat /etc/os-release
+uname -r
+
+sudo apt update
+sudo apt upgrade -y
+sudo apt install wget unzip -y
+mkdir -p ~/temp_install
+cd ~/temp_install
+
+wget -c https://dev.mysql.com/get/mysql-apt-config_0.8.40-1_all.deb
+sudo apt install ./mysql-apt-config_0.8.40-1_all.deb -y
+# У меню: платформа Debian trixie -> MySQL Server & Cluster -> mysql-9.7-lts -> Ok (done with configuration)
+sudo apt update
+
+sudo apt install mysql-server -y
+# У меню: пароль користувача root (у звіті не наводиться)
+systemctl status mysql.service
+
+mysql_secure_installation
+# Відповіді: VALIDATE PASSWORD COMPONENT - ні; зміна пароля root - ні; видалення анонімних користувачів - так;
+# заборона віддаленого входу root - так; видалення бази test - так; перезавантаження таблиць привілеїв - так
+mysql -u root -p
+CREATE DATABASE opencart CHARACTER SET utf8 COLLATE utf8_bin;
+CREATE USER 'devops-user'@'localhost' IDENTIFIED BY 'devops-user';
+GRANT ALL PRIVILEGES ON opencart.* TO 'devops-user'@'localhost';
+CREATE USER 'devops-user'@'%' IDENTIFIED BY 'devops-user';
+GRANT ALL PRIVILEGES ON opencart.* TO 'devops-user'@'%';
+SHOW DATABASES;
+exit
+
+sudo apt install apache2 -y
+apache2 -v
+systemctl status apache2
+pushd /etc/apache2/
+sudo cp /etc/apache2/apache2.conf /etc/apache2/apache2.conf.$(date -u +%Y%m%dT%H%M%SZ).bak
+ls -l
+sudo sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
+popd
+sudo systemctl restart apache2
+systemctl status apache2
+
+apt-cache depends php
+apt-cache depends php8.4-fpm
+apt-cache show php8.4-common | grep 'iconv'
+sudo apt install php8.4-fpm php8.4-curl php8.4-gd php8.4-mbstring php8.4-zip php8.4-mysql -y
+sudo a2enmod proxy_fcgi setenvif
+sudo a2enconf php8.4-fpm
+sudo systemctl reload apache2
+
+wget -c https://github.com/opencart/opencart/releases/download/4.1.0.4/opencart-4.1.0.4.zip
+unzip opencart-4.1.0.4.zip
+sudo mv upload /var/www/html/opencart
+cd /var/www/html/opencart/
+cp config-dist.php config.php
+cp ./admin/config-dist.php ./admin/config.php
+sudo chown -R www-data:www-data /var/www/html/opencart
+sudo chmod -R 755 /var/www/html/opencart
+sudo apt autoremove -y
+
+ip address | grep 'inet '
+# Браузер: http://127.0.0.1/opencart/install/index.php
+# Майстер встановлення: ліцензія -> перевірка вимог -> база даних (користувач devops-user, пароль devops-user,
+# база opencart) -> адміністратор (admin, пароль admin, пошта yehor.levchenko@nure.ua)
+# Авторизація в панелі адміністрування; видалення /var/www/html/opencart/install через інтерфейс
